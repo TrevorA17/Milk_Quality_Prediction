@@ -109,3 +109,48 @@ TukeyHSD(anova_Temprature)
 # Post-hoc test for Colour if ANOVA is significant
 TukeyHSD(anova_Colour)
 
+library(ggplot2)
+
+# Histogram for pH
+ggplot(MilkData, aes(x = pH)) +
+  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of pH Levels", x = "pH", y = "Frequency")
+
+# Boxplot for Temperature
+ggplot(MilkData, aes(y = Temprature)) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(title = "Boxplot of Temperature", y = "Temperature")
+
+# Bar plot for categorical variables (e.g., Taste)
+ggplot(MilkData, aes(x = Taste)) +
+  geom_bar(fill = "coral") +
+  labs(title = "Frequency of Taste", x = "Taste", y = "Count")
+
+# Bar plot for Grade
+ggplot(MilkData, aes(x = Grade)) +
+  geom_bar(fill = "lightblue") +
+  labs(title = "Frequency of Milk Quality Grades", x = "Grade", y = "Count")
+
+# Scatter plot of pH vs. Colour, colored by Grade
+ggplot(MilkData, aes(x = pH, y = Colour, color = Grade)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(title = "pH vs. Colour by Grade", x = "pH", y = "Colour") +
+  theme_minimal()
+
+# Box plot of Temperature by Grade
+ggplot(MilkData, aes(x = Grade, y = Temprature, fill = Grade)) +
+  geom_boxplot() +
+  labs(title = "Temperature by Milk Quality Grade", x = "Grade", y = "Temperature")
+
+# Scatter plot matrix for numeric variables (pH, Temperature, Colour)
+pairs(MilkData[, c("pH", "Temprature", "Colour")], 
+      main = "Scatter Plot Matrix of Numeric Variables", 
+      col = as.numeric(MilkData$Grade))
+
+# Faceted histogram of pH by Grade
+ggplot(MilkData, aes(x = pH, fill = Grade)) +
+  geom_histogram(binwidth = 0.5, color = "black") +
+  facet_wrap(~ Grade) +
+  labs(title = "Distribution of pH by Milk Quality Grade", x = "pH", y = "Frequency")
+
+
