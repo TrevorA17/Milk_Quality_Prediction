@@ -17,3 +17,12 @@ str(MilkData)
 head(MilkData)
 
 View(MilkData)
+
+set.seed(123)  # For reproducibility
+sample_index <- sample(seq_len(nrow(MilkData)), size = 0.7 * nrow(MilkData))
+train_data <- MilkData[sample_index, ]
+test_data <- MilkData[-sample_index, ]
+
+# Check the size of the splits
+nrow(train_data)
+nrow(test_data)
