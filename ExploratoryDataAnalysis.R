@@ -88,3 +88,24 @@ cor_matrix
 table_taste_grade
 table_odor_grade
 
+# ANOVA for pH across different Grade levels
+anova_pH <- aov(pH ~ Grade, data = MilkData)
+summary(anova_pH)
+
+# ANOVA for Temprature across different Grade levels
+anova_Temprature <- aov(Temprature ~ Grade, data = MilkData)
+summary(anova_Temprature)
+
+# ANOVA for Colour across different Grade levels
+anova_Colour <- aov(Colour ~ Grade, data = MilkData)
+summary(anova_Colour)
+
+# Post-hoc test for pH if ANOVA is significant
+TukeyHSD(anova_pH)
+
+# Post-hoc test for Temprature if ANOVA is significant
+TukeyHSD(anova_Temprature)
+
+# Post-hoc test for Colour if ANOVA is significant
+TukeyHSD(anova_Colour)
+
