@@ -17,3 +17,12 @@ str(MilkData)
 head(MilkData)
 
 View(MilkData)
+
+# Check for missing values in each column
+colSums(is.na(MilkData))
+
+# Alternatively, use the 'summary' function to get an overview, which also indicates missing values
+summary(MilkData)
+
+# Display rows with any missing values (if any exist)
+MilkData[!complete.cases(MilkData), ]
