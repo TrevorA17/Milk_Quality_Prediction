@@ -26,3 +26,20 @@ test_data <- MilkData[-sample_index, ]
 # Check the size of the splits
 nrow(train_data)
 nrow(test_data)
+
+library(boot)
+
+# Define a simple function to calculate the mean of pH as an example statistic
+boot_mean <- function(data, indices) {
+  sample_data <- data[indices, ]  # Resample data with replacement
+  return(mean(sample_data$pH))
+}
+
+library(boot)
+# Perform bootstrapping with 1000 resamples
+set.seed(123)
+boot_results <- boot(data = MilkData, statistic = boot_mean, R = 1000)
+
+# View bootstrapped results
+print(boot_results)
+plot(boot_results)
