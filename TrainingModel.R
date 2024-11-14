@@ -43,3 +43,52 @@ boot_results <- boot(data = MilkData, statistic = boot_mean, R = 1000)
 # View bootstrapped results
 print(boot_results)
 plot(boot_results)
+
+library(caret)
+
+# Train a Logistic Regression model
+set.seed(123)
+log_reg_model <- train(
+  Grade ~ ., 
+  data = MilkData, 
+  method = "multinom", 
+  family = "binomial", 
+  trControl = trainControl(method = "cv", number = 10)
+)
+
+# Print summary of model
+print(log_reg_model)
+
+library(randomForest)
+set.seed(123)
+rf_model <- train(
+  Grade ~ ., 
+  data = MilkData, 
+  method = "rf", 
+  trControl = trainControl(method = "cv", number = 10)
+)
+print(rf_model)
+
+set.seed(123)
+svm_model <- train(
+  Grade ~ ., 
+  data = MilkData, 
+  method = "svmRadial", 
+  trControl = trainControl(method = "cv", number = 10)
+)
+print(svm_model)
+
+# Combine models into a list
+models <- resamples(list(Logistic_Regression = log_reg_model,
+                         Random_Forest = rf_model,
+                         SVM = svm_model))
+
+# Summary of the resamples to view performance metrics
+summary(models)
+
+# Boxplots to visualize the comparison of models
+bwplot(models)
+
+# Additional metrics comparison (Accuracy, Kappa, etc.)
+dotplot(models)
+
