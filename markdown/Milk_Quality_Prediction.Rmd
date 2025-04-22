@@ -1,0 +1,354 @@
+---
+title: "Milk Quality Prediction"
+author: "Trevor Okinda"
+date: "2024"
+output:
+  github_document: 
+    toc: yes
+    toc_depth: 4
+    fig_width: 6
+    fig_height: 4
+    df_print: default
+editor_options:
+  chunk_output_type: console
+---
+
+# Student Details
+
+|                                              |     |
+|----------------------------------------------|-----|
+| **Student ID Number**                        | 134780 |
+| **Student Name**                             | Trevor Okinda |
+| **BBIT 4.2 Group**                           | C |
+| **Project Name**                             | Milk Quality Prediction |
+
+# Setup Chunk
+
+**Note:** the following KnitR options have been set as the global defaults: <BR> `knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE, collapse = FALSE, tidy = TRUE)`.
+
+More KnitR options are documented here <https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html> and here <https://yihui.org/knitr/options/>.
+
+```{r setup, include=FALSE}
+library(formatR)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = FALSE
+)
+```
+
+### Source: 
+
+The dataset that was used can be downloaded here: *\<https://www.kaggle.com/datasets/cpluzshrijayan/milkquality\>*
+
+### Reference:
+
+*\<Rajendran, S. (n.d.). Milk Quality Prediction [Data set]. Kaggle. https://www.kaggle.com/datasets/cpluzshrijayan/milkquality\>\
+Refer to the APA 7th edition manual for rules on how to cite datasets: <https://apastyle.apa.org/style-grammar-guidelines/references/examples/data-set-references>*
+
+# Understanding the Dataset (Exploratory Data Analysis (EDA))
+
+## Loading the Dataset
+```{r Load dataset}
+# Load the dataset
+MilkData <- read.csv("milknew.csv", colClasses = c(
+  pH = "numeric",
+  Temprature = "numeric",
+  Taste = "factor",
+  Odor = "factor",
+  Fat = "factor",
+  Turbidity = "factor",
+  Colour = "numeric",
+  Grade = "factor"
+))
+
+# Display structure to verify data types
+str(MilkData)
+
+# Display first few rows to ensure data is loaded correctly
+head(MilkData)
+
+View(MilkData)
+```
+
+## Measures of Frequency
+```{r MOF}
+# Frequency tables for categorical variables
+table(MilkData$Taste)
+table(MilkData$Odor)
+table(MilkData$Fat)
+table(MilkData$Turbidity)
+table(MilkData$Grade)
+
+```
+
+## Measures of Central Tendency
+```{r MOCT}
+# Mean
+mean_pH <- mean(MilkData$pH, na.rm = TRUE)
+mean_Temprature <- mean(MilkData$Temprature, na.rm = TRUE)
+mean_Colour <- mean(MilkData$Colour, na.rm = TRUE)
+
+# Median
+median_pH <- median(MilkData$pH, na.rm = TRUE)
+median_Temprature <- median(MilkData$Temprature, na.rm = TRUE)
+median_Colour <- median(MilkData$Colour, na.rm = TRUE)
+
+# Mode function (for simplicity, it assumes one mode)
+get_mode <- function(v) {
+  uniq_vals <- unique(v)
+  uniq_vals[which.max(tabulate(match(v, uniq_vals)))]
+}
+
+mode_pH <- get_mode(MilkData$pH)
+mode_Temprature <- get_mode(MilkData$Temprature)
+mode_Colour <- get_mode(MilkData$Colour)
+
+# Display results
+mean_pH; mean_Temprature; mean_Colour
+median_pH; median_Temprature; median_Colour
+mode_pH; mode_Temprature; mode_Colour
+```
+
+## Measures of Distribution
+```{r MOD}
+# Variance
+var_pH <- var(MilkData$pH, na.rm = TRUE)
+var_Temprature <- var(MilkData$Temprature, na.rm = TRUE)
+var_Colour <- var(MilkData$Colour, na.rm = TRUE)
+
+# Standard Deviation
+sd_pH <- sd(MilkData$pH, na.rm = TRUE)
+sd_Temprature <- sd(MilkData$Temprature, na.rm = TRUE)
+sd_Colour <- sd(MilkData$Colour, na.rm = TRUE)
+
+# Range
+range_pH <- range(MilkData$pH, na.rm = TRUE)
+range_Temprature <- range(MilkData$Temprature, na.rm = TRUE)
+range_Colour <- range(MilkData$Colour, na.rm = TRUE)
+
+# Quantiles
+quantiles_pH <- quantile(MilkData$pH, probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
+quantiles_Temprature <- quantile(MilkData$Temprature, probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
+quantiles_Colour <- quantile(MilkData$Colour, probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
+
+# Display results
+var_pH; var_Temprature; var_Colour
+sd_pH; sd_Temprature; sd_Colour
+range_pH; range_Temprature; range_Colour
+quantiles_pH; quantiles_Temprature; quantiles_Colour
+
+```
+
+## Measures of Relationship
+```{r MOR}
+# Correlation between numeric variables
+cor_matrix <- cor(MilkData[, c("pH", "Temprature", "Colour")], use = "complete.obs")
+
+# Contingency tables for categorical variables
+table_taste_grade <- table(MilkData$Taste, MilkData$Grade)
+table_odor_grade <- table(MilkData$Odor, MilkData$Grade)
+
+# Display results
+cor_matrix
+table_taste_grade
+table_odor_grade
+```
+
+## ANOVA
+```{r ANOVA}
+# ANOVA for pH across different Grade levels
+anova_pH <- aov(pH ~ Grade, data = MilkData)
+summary(anova_pH)
+
+# ANOVA for Temprature across different Grade levels
+anova_Temprature <- aov(Temprature ~ Grade, data = MilkData)
+summary(anova_Temprature)
+
+# ANOVA for Colour across different Grade levels
+anova_Colour <- aov(Colour ~ Grade, data = MilkData)
+summary(anova_Colour)
+
+# Post-hoc test for pH if ANOVA is significant
+TukeyHSD(anova_pH)
+
+# Post-hoc test for Temprature if ANOVA is significant
+TukeyHSD(anova_Temprature)
+
+# Post-hoc test for Colour if ANOVA is significant
+TukeyHSD(anova_Colour)
+```
+
+## Plots
+```{r Plots}
+library(ggplot2)
+
+# Histogram for pH
+ggplot(MilkData, aes(x = pH)) +
+  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of pH Levels", x = "pH", y = "Frequency")
+
+# Boxplot for Temperature
+ggplot(MilkData, aes(y = Temprature)) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(title = "Boxplot of Temperature", y = "Temperature")
+
+# Bar plot for categorical variables (e.g., Taste)
+ggplot(MilkData, aes(x = Taste)) +
+  geom_bar(fill = "coral") +
+  labs(title = "Frequency of Taste", x = "Taste", y = "Count")
+
+# Bar plot for Grade
+ggplot(MilkData, aes(x = Grade)) +
+  geom_bar(fill = "lightblue") +
+  labs(title = "Frequency of Milk Quality Grades", x = "Grade", y = "Count")
+
+# Scatter plot of pH vs. Colour, colored by Grade
+ggplot(MilkData, aes(x = pH, y = Colour, color = Grade)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(title = "pH vs. Colour by Grade", x = "pH", y = "Colour") +
+  theme_minimal()
+
+# Box plot of Temperature by Grade
+ggplot(MilkData, aes(x = Grade, y = Temprature, fill = Grade)) +
+  geom_boxplot() +
+  labs(title = "Temperature by Milk Quality Grade", x = "Grade", y = "Temperature")
+
+# Scatter plot matrix for numeric variables (pH, Temperature, Colour)
+pairs(MilkData[, c("pH", "Temprature", "Colour")], 
+      main = "Scatter Plot Matrix of Numeric Variables", 
+      col = as.numeric(MilkData$Grade))
+
+# Faceted histogram of pH by Grade
+ggplot(MilkData, aes(x = pH, fill = Grade)) +
+  geom_histogram(binwidth = 0.5, color = "black") +
+  facet_wrap(~ Grade) +
+  labs(title = "Distribution of pH by Milk Quality Grade", x = "pH", y = "Frequency")
+
+```
+
+# Preprocessing and Data Transformation
+## Missing Values
+```{r Missing Values}
+# Check for missing values in each column
+colSums(is.na(MilkData))
+
+# Alternatively, use the 'summary' function to get an overview, which also indicates missing values
+summary(MilkData)
+
+# Display rows with any missing values (if any exist)
+MilkData[!complete.cases(MilkData), ]
+
+```
+
+# Training Models
+## Data Splitting
+```{r Data splitting}
+set.seed(123)  # For reproducibility
+sample_index <- sample(seq_len(nrow(MilkData)), size = 0.7 * nrow(MilkData))
+train_data <- MilkData[sample_index, ]
+test_data <- MilkData[-sample_index, ]
+
+# Check the size of the splits
+nrow(train_data)
+nrow(test_data)
+```
+
+## Bootstrapping
+```{r Bootstrapping}
+library(boot)
+
+# Define a simple function to calculate the mean of pH as an example statistic
+boot_mean <- function(data, indices) {
+  sample_data <- data[indices, ]  # Resample data with replacement
+  return(mean(sample_data$pH))
+}
+
+library(boot)
+# Perform bootstrapping with 1000 resamples
+set.seed(123)
+boot_results <- boot(data = MilkData, statistic = boot_mean, R = 1000)
+
+# View bootstrapped results
+print(boot_results)
+plot(boot_results)
+
+```
+
+## Training Different Models
+```{r Training Different Models}
+library(caret)
+
+# Train a Logistic Regression model
+set.seed(123)
+log_reg_model <- train(
+  Grade ~ ., 
+  data = MilkData, 
+  method = "multinom", 
+  family = "binomial", 
+  trControl = trainControl(method = "cv", number = 10)
+)
+
+# Print summary of model
+print(log_reg_model)
+
+library(randomForest)
+set.seed(123)
+rf_model <- train(
+  Grade ~ ., 
+  data = MilkData, 
+  method = "rf", 
+  trControl = trainControl(method = "cv", number = 10)
+)
+print(rf_model)
+
+set.seed(123)
+svm_model <- train(
+  Grade ~ ., 
+  data = MilkData, 
+  method = "svmRadial", 
+  trControl = trainControl(method = "cv", number = 10)
+)
+print(svm_model)
+```
+
+## Performance Comparison
+```{r Performance Comparison}
+# Combine models into a list
+models <- resamples(list(Logistic_Regression = log_reg_model,
+                         Random_Forest = rf_model,
+                         SVM = svm_model))
+
+# Summary of the resamples to view performance metrics
+summary(models)
+
+# Boxplots to visualize the comparison of models
+bwplot(models)
+
+# Additional metrics comparison (Accuracy, Kappa, etc.)
+dotplot(models)
+```
+
+## Saving Model
+```{r Saving Model}
+# Load the saved model
+loaded_rf_model <- readRDS("./models/saved_rf_model.rds")
+
+# Model predicts Grade (milk quality)
+new_data <- data.frame(
+  pH = 6.6,
+  Temprature = 35,
+  Taste = factor(1, levels = c(0, 1)),  # Adjust levels 
+  Odor = factor(0, levels = c(0, 1)),    # Adjust levels 
+  Fat = factor(1, levels = c(0, 1)),     # Adjust levels 
+  Turbidity = factor(0, levels = c(0, 1)),# Adjust levels 
+  Colour = 254
+)
+
+# Use the loaded model to make predictions
+predictions_loaded_model <- predict(loaded_rf_model, newdata = new_data)
+
+# Print predictions
+print(predictions_loaded_model)
+
+```
+
